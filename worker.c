@@ -18,12 +18,12 @@ int main(int argc, char **argv) {
         }
         int shm_id = shmget(SH_KEY, sizeof(int) * 2, 0777 | IPC_CREAT);
         if (shm_id <= 0) {
-                fprintf(stderr, "Shared memory grab failed \n");
+                fprintf(stderr, "Shared memory failiure \n");
                 exit(1);
         }
         int *shm_ptr = shmat(shm_id, 0, 0);
         if (shm_ptr == (void *) -1) {
-                fprintf(stderr, "Shared memory attach failed \n");
+                fprintf(stderr, "Shared memory failiure");
                 exit(1);
         }
 
