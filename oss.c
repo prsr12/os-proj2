@@ -19,7 +19,7 @@ typedef struct PCB {
 
 PCB processTable[20];
 
-define NANO_INC 10000000 // represents 10 milliseconds
+#define NANO_INC 10000000 // represents 10 milliseconds
 #define NANO_SEC 1000000000 // 1 second equals a billion nanosec
 
 int main(int argc, char **argv) {
