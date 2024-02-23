@@ -19,21 +19,20 @@ typedef struct PCB {
 
 PCB processTable[20];
 
-#define NANO_INC 10000000 // represents 10 milliseconds
-#define NANO_SEC 1000000000 // 1 second equals a billion nanoseconds
-
+#define NANO_INC 10000000 
+#define NANO_SEC 1000000000 
 int main(int argc, char **argv) {
     int opt;
-    int proc = 8; // default number of processes
-    int simul = 5; // default number of simultaneous processes
-    int timeLimit = 5; // default time limit for child processes
-    int intervalMs = 100; // default interval in milliseconds to launch children
+    int proc = 1; 
+    int simul = 1; 
+    int timeLimit = 1; 
+    int intervalMs = 10; 
 
-    // Parsing command-line arguments
+
     while ((opt = getopt(argc, argv, "hn:s:t:i:")) != -1) {
         switch (opt) {
             case 'h':
-                printf("Usage: %s [-h] [-n proc] [-s simul] [-t timeLimit] [-i intervalMs]\n", argv[0]);
+                printf("Usage: %s [-n proc] [-s simul] [-t timeLimit] [-i intervalMs]\n", argv[0]);
                 return 0;
             case 'n':
                 proc = atoi(optarg);
@@ -53,16 +52,15 @@ int main(int argc, char **argv) {
         }
     }
 
-    // Key generation for shared memory
     key_t SH_KEY = ftok(".", 'x');
     int shm_id = shmget(SH_KEY, sizeof(int) * 2, 0777 | IPC_CREAT);
     if (shm_id <= 0) {
-        fprintf(stderr, "Shared memory grab failed\n");
+        fprintf(stderr, "shared memory failiure\n");
         exit(1);
     }
     int *shm_ptr = shmat(shm_id, 0, 0);
     if (shm_ptr == (void *) -1) {
-        fprintf(stderr, "Shared memory attach failed\n");
+        fprintf(stderr, "shared memory failiure\n");
         exit(1);
     }
 
@@ -97,12 +95,11 @@ int main(int argc, char **argv) {
                 }
             }
         } else {
-            fprintf(stderr, "Fork failed.\n");
+            fprintf(stderr, "Fork failure.\n");
             exit(1);
         }
     }
 
-    // Main loop
     while (stillChildrenToLaunch == true) {
         sys_nano += NANO_INC;
         if (sys_nano >= NANO_SEC) {
@@ -124,7 +121,6 @@ int main(int argc, char **argv) {
         int status;
         pid_t pid = waitpid(-1, &status, WNOHANG);
         if (pid > 0) {
-            printf("Child process with PID %d has terminated.\n", pid);
             for (int i = 0; i < 20; i++) {
                 if (processTable[i].pid == pid) {
                     processTable[i].occupied = 0;
@@ -141,7 +137,6 @@ int main(int argc, char **argv) {
                     perror("Execl() failed");
                     exit(0);
                 } else if (new_pid > 0) {
-                    printf("Parent process has launched a child with PID %d.\n", new_pid);
                     for (int i = 0; i < 20; i++) {
                         if (!processTable[i].occupied) {
                             processTable[i].occupied = 1;
@@ -152,7 +147,7 @@ int main(int argc, char **argv) {
                         }
                     }
                 } else {
-                    fprintf(stderr, "Fork failed.\n");
+                    fprintf(stderr, "Fork failure.\n");
                     exit(1);
                 }
             } else {
